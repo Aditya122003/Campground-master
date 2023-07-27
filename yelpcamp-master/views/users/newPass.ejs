@@ -1,0 +1,40 @@
+<% layout('layouts/boilerplate') -%>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-sm-7 col-md-6 col-lg-5 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="text-center">Reset Your Password</h1>
+                    <form action="/newPass/<%= userId %>" method="POST" class="needs-validation" novalidate>
+                        <div class="form-group mb-3">
+                            <label for="new-pass" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="new-pass" name='new-pass' required autofocus
+                                placeholder="New Password">
+                            <div class="valid-feedback">
+                                Looks Good!
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="confirm-pass" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirm-pass" name='confirm-pass' required
+                                placeholder="Confirm Password">
+                            <div class="valid-feedback">
+                                Looks Good!
+                            </div>
+                        </div>
+                        <button class="btn btn-success w-100">Change Password</button>
+                    </form>
+                    <div class="mt-2 text-center">
+                        <a href="/campgrounds">Canel</a>
+                    </div>
+                    <div class="mt-2 text-center">
+                        Don't have an account?
+                        <a href="/register">Sign Up</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/campgrounds/javascripts/validateForm.js"></script>

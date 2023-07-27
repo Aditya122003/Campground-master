@@ -1,0 +1,136 @@
+<% layout('layouts/boilerplate') -%>
+
+<% block('head').append("   <script src='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.js'></script>") %>
+<% block('head').append("   <link href='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css' rel='stylesheet' />") %>
+<% block('head').append("   <link rel='stylesheet' href='/campgrounds/stylesheets/index.css'>") %>
+
+
+<div class="container-fluid" id="map"></div>
+
+<form action="/campgrounds" class="container-fluid shadow mb-3 search-form">
+    <div class="col-6 mb-3 me-2">
+        <input type="search" placeholder="Search Campground/Location" class="form-control" name="search"
+            value="<%= searchTerm %>" autofocus>
+    </div>
+    <div class="mb-3 me-2">
+        <select id="" class="form-select form-control" name="sort">
+            <option value="" <%- sortby? "selected": "" %>>Sort By</option>
+            <option value="-avg_rating" <%- (sortby=="-avg_rating")? "selected": "" %>>Rating
+            </option>
+            <option value="price" <%- sortby=="price"? "selected": "" %>>Lowest Price</option>
+            <option value="-price" <%- sortby=="-price"? "selected": "" %>>Highest Price</option>
+        </select>
+    </div>
+    <div class="mb-3 me-2">
+        <button class="btn btn-success">Search</button>
+    </div>
+</form>
+
+
+<% if (searchTerm){ %>
+<% if (campgrounds.length>0){ %>
+<h1 class="text-center"><%= totalDocs %> Results Found For <%= searchTerm %></h1>
+<p class="text-center"><a href="/campgrounds">Back To All Campgrounds</a></p>
+<% } else{ %>
+<h1 class="text-center">No Results Found For <%= searchTerm %></h1>
+<p class="text-center"><a href="/campgrounds">Back To All Campgrounds</a></p>
+<% } %>
+<% } else{ %>
+<h1 class="text-center">All CampGrounds</h1>
+<% if (totalPages){ %>
+<h4 class="text-center">Page <%= currentPage %> of <%= totalPages %></h4>
+<% }else{ %>
+<h4 class="text-center">No Campgrounds Has Been Created Yet!</h4>
+<% } %>
+<% } %>
+
+<div class="container d-flex flex-wrap campgrounds mt-5">
+    <% for (let campground of campgrounds){%>
+    <div class="card mb-3 shadow">
+        <img src="<%= campground.images.length>0?campground.images[0].thumb: "/no-image.png" %>" class="card-img-top"
+            alt="...">
+        <div class="card-body">
+            <h5 class="card-title d-inline-block"><%= campground.title %></h5>
+            <h5 class="card-title showprice d-inline"><i
+                    class="fas fa-dollar-sign me-2"></i><%= campground.price %>/night</h5>
+            <p class="card-text average-rating">
+                <% for (let i=1; i<=Math.round(campground.avg_rating); i++) {%>
+                <i class="fas fa-star avg-rated-star"></i>
+                <% } %>
+                <% for(let j=1; j<=(5-Math.round(campground.avg_rating)); j++){ %>
+                <i class="far fa-star avg-rated-star"></i>
+                <% } %>
+                <p class="text-muted"><%= campground.reviews.length %> Reviews</p>
+            </p>
+            <p class="card-text">
+                <small class="text-muted"><i
+                        class="fas fa-globe me-2 text-primary"></i><%= campground.location%></small>
+            </p>
+        </div>
+        <div class="card-body">
+            <a class="btn btn-primary" href="/campgrounds/<%=campground._id%>">View <%=campground.title%></a>
+        </div>
+    </div>
+    <% }%>
+</div>
+
+<nav aria-label="Page navigation" class="mt-5">
+    <% if (totalPages && totalPages > 0) { %>
+    <ul class="pagination justify-content-center flex-wrap">
+        <% if (currentPage == 1) { %>
+        <li class="page-item disabled"><a class="page-link">First</a></li>
+        <% } else { %>
+        <li><a class="page-link"
+                href="/campgrounds?<%= sortby? `&sort=${sortby}`: ''%><%= searchTerm? `&search=${searchTerm}`: '' %>">First</a>
+        </li>
+        <% } %>
+
+        <% if (currentPage == 1) { %>
+        <li class="page-item disabled"><a class="page-link">«</a></li>
+        <% } else { %>
+        <li><a class="page-link"
+                href="/campgrounds?pageNumber=<%= Number(currentPage) - 1 %><%= sortby? `&sort=${sortby}`: ''%><%= searchTerm? `&search=${searchTerm}`: '' %>">«</a>
+        </li>
+        <% } %>
+
+        <% var i = (Number(currentPage) > 5 ? Number(currentPage) - 4 : 1) %>
+        <% if (i !== 1) { %>
+        <li class="page-item disabled"><a class="page-link">...</a></li>
+        <% } %>
+        <% for (; i <= (Number(currentPage) + 4) && i <= totalPages; i++) { %>
+        <% if (i == Number(currentPage)) { %>
+        <li class="page-item active"><a class="page-link"><%= i %></a></li>
+        <% } else { %>
+        <li><a class="page-link"
+                href="/campgrounds?pageNumber=<%= i %><%= sortby? `&sort=${sortby}`: ''%><%= searchTerm? `&search=${searchTerm}`: '' %>"><%= i %></a>
+        </li>
+        <% } %>
+        <% if (i == Number(currentPage) + 4 && i < totalPages) { %>
+        <li class="page-item disabled"><a class="page-link">...</a></li>
+        <% } %>
+        <% } %>
+
+        <% if (currentPage == totalPages) { %>
+        <li class="page-item disabled"><a class="page-link">»</a></li>
+        <% } else { %>
+        <li><a class="page-link"
+                href="/campgrounds?pageNumber=<%= Number(currentPage) + 1 %><%= sortby? `&sort=${sortby}`: ''%><%= searchTerm? `&search=${searchTerm}`: '' %>">»</a>
+        </li>
+        <% } %>
+
+        <% if (currentPage == totalPages) { %>
+        <li class="page-item disabled"><a class="page-link">Last</a></li>
+        <% } else { %>
+        <li><a class="page-link"
+                href="/campgrounds?pageNumber=<%= totalPages %><%= sortby? `&sort=${sortby}`: ''%><%= searchTerm? `&search=${searchTerm}`: '' %>">Last</a>
+        </li>
+        <% } %>
+    </ul>
+    <% } %>
+</nav>
+
+<script>
+    const Mapbox_Token = `<%- process.env.MAPBOX_TOKEN %>`
+</script>
+<script src="/campgrounds/javascripts/clusterMap.js"> </script>
+<script src="/campgrounds/javascripts/validateForm.js"></script>
